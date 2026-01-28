@@ -133,6 +133,7 @@
             }
         }
         excercise = []
+        cachedFiles = []
         stopped = false;
         function createExercise() {
             excercise = []
@@ -166,10 +167,17 @@
             Tone.Transport.debug = true;
             metrumSuffix = (document.getElementById("metrum").checked) ? "M" : ""; 
             for (var i = 0; i < excercise.length; i++) {
-                const player = new Tone.Player("/static/audio/IDMETRUM.mp3".replace("ID", excercise[i].toString()).replace("METRUM", metrumSuffix)).toDestination();
+                url = "/static/audio/IDMETRUM.mp3".replace("ID", excercise[i].toString()).replace("METRUM", metrumSuffix);
+                playerObj = cachedFiles.filter(obj => obj.url == url)[0];
+                if (playerObj == undefined) {
+                    playerObj = new Tone.Player(url).toDestination();
+                    playerObj.url = url;
+                    cachedFiles.push(playerObj);
+                }
+                const player = playerObj;
+
                 time = ((i).toString() + "m");
                 if (time == "0m") time = "0";
-                console.log(time)
                 Tone.Transport.schedule((time)=> {player.start(time)}, time);
             }
 
