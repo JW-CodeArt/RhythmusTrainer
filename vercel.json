@@ -11,7 +11,7 @@
             "dest": "server.py"
         },
         {
-            "src": "/static/(.*)",
+            "src": "^/static/(.*)$",
             "dest": "/static/$1"
         }
     ]
