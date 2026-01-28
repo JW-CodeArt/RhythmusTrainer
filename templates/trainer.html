@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ternäre Rhythmen Trainer</title>
+</head>
+
+<style>
+    * {
+        font-family: Arial;
+    }
+
+    .container {
+        border: 1px solid black;
+        margin: 10pt;
+        padding: 10pt;
+        border-radius: 20pt 0pt 20pt 0pt;
+        width: max-content;
+        min-width: 200pt;
+        display: inline flow-root;
+        vertical-align: top;
+    }
+
+    details {
+        padding-left: 15pt;
+    }
+    summary {
+        margin-left: -15pt;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    h1, h2 {
+        width: max-content;
+    }
+
+    input[type="number"] {
+        width: 50pt;
+    }
+
+    #audioSamples, #audioSamples :is(table, tr, td, tbody) {
+        border: 1px black solid;
+        border-collapse: collapse;
+        padding: 5pt;
+    }
+
+
+</style>
+<body>
+    <h1>Ternäre Rhythmen Trainer</h1>
+    
+    <div class="container">
+        <div style="display: ruby;">
+            <h2>Übung</h2>
+            <button onclick="createExercise()" style="float: right;">Neue Übung erstellen</button>
+        </div>         
+        <br>
+        <button onclick="play()">Abspielen</button>
+        <button onclick="stop()">Stop</button>
+        
+        <br>
+        <progress id="playbackTimeline" value="0" max="100"></progress>
+        <br><br>
+        <details id="solutionDetails">
+            <summary>Lösung anzeigen</summary>
+            <span id="solution"></span>
+        </details>
+        <br>
+        <details>
+            <summary>Einstellungen</summary>
+            <table>
+                <tbody>
+                    <tr>
+                        <td>Taktanzahl:</td>
+                        <td><input type="number" id="amount" value="2"></td>
+                    </tr>
+                    <tr>
+                        <td>Bausteine </td>
+                        <td><input type="number" id="from" value="1"></td>
+                        <td> - </td>
+                        <td><input type="number" id="to" value="19"></td>
+                    </tr>
+                    <tr>
+                        <td>Metrum: </td>
+                        <td><input type="checkbox" id="metrum"></td>
+                    </tr>
+
+        
+                </tbody>
+            </table>
+            <p>Einstellungen werden beim Erstellen<br>einer neuen Übung angewandt.</p>
+        </details>
+    </div>
+    
+    <div class="container">
+        <details>
+            <summary>Übersicht der Rhythmen</summary>
+            <img src="./static/img/overview.png" alt="" height="700pt">
+        </details>
+    </div>
+    
+    <div class="container">
+        <details>
+            <summary>Audio Beispiele</summary>
+            <table id="audioSamples">
+                <tbody>
+                    <tr>
+                        <td>Nr.</td>
+                        <td>Ohne Metrum</td>
+                        <td>Mit Metrum</td>
+                    </tr>
+                </tbody>
+            </table>
+        </details>
+    </div>
+    <script src="./static/lib/tone.js"></script>
+    <script>
+        function loadSamples() {
+            htmlTemplate = `
+            <tr>
+                <td>NR</td>
+                <td><audio controls preload="auto" id="AudioNR"> <source src="./static/audio/NR.mp3"></source></audio></td>
+                <td><audio controls preload="auto" id="AudioMetrumNR"> <source src="./static/audio/NRM.mp3"></source></audio></td>
+            </tr>
+            `
+            for (var i=1; i < 20; i++) {
+                var newRow = htmlTemplate;
+                newRow = newRow.replaceAll("NR", i.toString());
+                element = document.getElementById("audioSamples")
+                element.insertAdjacentHTML("beforeend", newRow);
+
+            }
+        }
+        excercise = []
+        stopped = false;
+        function createExercise() {
+            excercise = []
+            amount = Number(document.getElementById("amount").value);
+            min = Number(document.getElementById("from").value);
+            max = Number(document.getElementById("to").value);
+            for (i=0; i < amount; i++) {
+                excercise.push(randInt(1, 19));
+            }
+            document.getElementById("solutionDetails").removeAttribute("open");
+            document.getElementById("solution").innerText = excercise.join(", ");
+
+            
+        }
+
+        function randInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1) + min);
+        }
+        
+        async function play() {
+            stop();
+            Tone.Transport.clear();
+            Tone.Transport.stop();
+            Tone.Transport.position = 0;
+            await Tone.start();
+            
+            updateBar();
+            startTime = 0;
+            Tone.Transport.bpm.value = 60;
+            Tone.Transport.timeSignature = [3, 8];
+            Tone.Transport.debug = true;
+            metrumSuffix = (document.getElementById("metrum").checked) ? "M" : ""; 
+            for (var i = 0; i < excercise.length; i++) {
+                const player = new Tone.Player("./static/audio/IDMETRUM.mp3".replace("ID", excercise[i].toString()).replace("METRUM", metrumSuffix)).toDestination();
+                time = ((i).toString() + "m");
+                if (time == "0m") time = "0";
+                console.log(time)
+                Tone.Transport.schedule((time)=> {player.start(time)}, time);
+            }
+
+            await Tone.loaded();
+            
+            Tone.Transport.start();
+
+        }
+
+        function stop() {
+            stopped = true;
+            Tone.Transport.stop();
+            Tone.Transport.cancel();
+        }
+
+        async function updateBar() {
+            stopped = false;
+            document.getElementById("playbackTimeline").value = 0;
+            for (var i=1; i<excercise.length*3+1; i++) {
+                await new sleep(0.5);
+                document.getElementById("playbackTimeline").value = (i/(excercise.length*3))*100;
+                if (stopped) {
+                    break;
+                    document.getElementById("playbackTimeline").value = 0;
+                }
+            }
+            
+        }
+
+        function sleep(s) {
+            return new Promise(resolve => setTimeout(resolve, 1000*s));
+        }
+
+        loadSamples();
+        createExercise();
+    </script>
+    
+
+</body>
+</html>
