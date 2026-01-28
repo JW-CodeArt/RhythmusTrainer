@@ -3,10 +3,7 @@ import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
-app = Flask(__name__,
-    template_folder="../templates",
-    static_folder="../static",
-    static_url_path="/static")
+app = Flask(__name__, template_folder="../templates")
 
 @app.route("/")
 def hello():
