@@ -2,7 +2,14 @@
     "rewrites": [
         {
             "source": "/(.*)",
-            "destination": "/templates/trainer.html"
+            "destination": "/templates/trainer.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "public, max-age=31536000, immutable"
+                }
+            ]
         }
+        
     ]
 }
