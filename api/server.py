@@ -7,6 +7,6 @@ app = Flask(__name__)
 
 @app.route("/")
 def hello():
-    return render_template("trainer.html")
+    return render_template("../trainer.html")
 
 #app.run(debug=False)
