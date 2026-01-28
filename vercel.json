@@ -2,7 +2,13 @@
     "rewrites": [
         {
             "source": "/(.*)",
-            "destination": "/templates/trainer.html",
+            "destination": "/templates/trainer.html"
+        }
+        
+    ],
+    "headers": [
+        {
+            "source": "/audio/(.*)",
             "headers": [
                 {
                     "key": "Cache-Control",
@@ -10,6 +16,5 @@
                 }
             ]
         }
-        
     ]
 }
