@@ -9,4 +9,4 @@ app = Flask(__name__)
 def hello():
     return render_template("trainer.html")
 
-app.run(debug=False)
+#app.run(debug=False)
