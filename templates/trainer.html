@@ -96,7 +96,7 @@
     <div class="container">
         <details>
             <summary>Übersicht der Rhythmen</summary>
-            <img src="./static/img/overview.png" alt="" height="700pt">
+            <img src="/static/img/overview.png" alt="" height="700pt">
         </details>
     </div>
     
@@ -114,14 +114,14 @@
             </table>
         </details>
     </div>
-    <script src="./static/lib/tone.js"></script>
+    <script src="/static/lib/tone.js"></script>
     <script>
         async function loadSamples() {
             htmlTemplate = `
             <tr>
                 <td>NR</td>
-                <td><audio controls preload="auto" id="AudioNR"> <source src="./static/audio/NR.mp3"></source></audio></td>
-                <td><audio controls preload="auto" id="AudioMetrumNR"> <source src="./static/audio/NRM.mp3"></source></audio></td>
+                <td><audio controls preload="auto" id="AudioNR"> <source src="/static/audio/NR.mp3"></source></audio></td>
+                <td><audio controls preload="auto" id="AudioMetrumNR"> <source src="/static/audio/NRM.mp3"></source></audio></td>
             </tr>
             `
             for (var i=1; i < 20; i++) {
@@ -166,7 +166,7 @@
             Tone.Transport.debug = true;
             metrumSuffix = (document.getElementById("metrum").checked) ? "M" : ""; 
             for (var i = 0; i < excercise.length; i++) {
-                const player = new Tone.Player("./static/audio/IDMETRUM.mp3".replace("ID", excercise[i].toString()).replace("METRUM", metrumSuffix)).toDestination();
+                const player = new Tone.Player("/static/audio/IDMETRUM.mp3".replace("ID", excercise[i].toString()).replace("METRUM", metrumSuffix)).toDestination();
                 time = ((i).toString() + "m");
                 if (time == "0m") time = "0";
                 console.log(time)
