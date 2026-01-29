@@ -60,7 +60,7 @@
         <button onclick="stop()">Stop</button>
         
         <br>
-        <progress id="playbackTimeline" value="0" max="100"></progress>
+        <progress id="playbackTimeline" value="0" max="1"></progress>
         <br><br>
         <details id="solutionDetails">
             <summary>Lösung anzeigen</summary>
@@ -76,7 +76,7 @@
                         <td><input type="number" id="amount" value="2"></td>
                     </tr>
                     <tr>
-                        <td>Bausteine </td>
+                        <td>Bausteine: </td>
                         <td><input type="number" id="from" value="1"></td>
                         <td> - </td>
                         <td><input type="number" id="to" value="19"></td>
@@ -84,6 +84,10 @@
                     <tr>
                         <td>Metrum: </td>
                         <td><input type="checkbox" id="metrum"></td>
+                    </tr>
+                    <tr>
+                        <td>Wiederholen: </td>
+                        <td><input type="checkbox" id="loop"></td>
                     </tr>
 
         
@@ -141,7 +145,7 @@
             min = Number(document.getElementById("from").value);
             max = Number(document.getElementById("to").value);
             for (i=0; i < amount; i++) {
-                excercise.push(randInt(1, 19));
+                excercise.push(randInt(min, max));
             }
             document.getElementById("solutionDetails").removeAttribute("open");
             document.getElementById("solution").innerText = excercise.join(", ");
@@ -165,6 +169,9 @@
             Tone.Transport.bpm.value = 60;
             Tone.Transport.timeSignature = [3, 8];
             Tone.Transport.debug = true;
+            Tone.Transport.loop = document.getElementById("loop").checked;
+            Tone.Transport.loopStart = 0;
+            Tone.Transport.loopEnd = excercise.length.toString() + "M"
             metrumSuffix = (document.getElementById("metrum").checked) ? "M" : ""; 
             for (var i = 0; i < excercise.length; i++) {
                 url = "/static/audio/IDMETRUM.mp3".replace("ID", excercise[i].toString()).replace("METRUM", metrumSuffix);
@@ -196,14 +203,11 @@
         async function updateBar() {
             stopped = false;
             document.getElementById("playbackTimeline").value = 0;
-            for (var i=1; i<excercise.length*3+1; i++) {
-                await new sleep(0.5);
-                document.getElementById("playbackTimeline").value = (i/(excercise.length*3))*100;
-                if (stopped) {
-                    break;
-                    document.getElementById("playbackTimeline").value = 0;
-                }
+            while (stopped == false) {
+                await new sleep(0.3);
+                document.getElementById("playbackTimeline").value = Tone.Transport.seconds / Tone.Time(excercise.length.toString() + "M").toSeconds();
             }
+            document.getElementById("playbackTimeline").value = 0;
             
         }
 
